@@ -7,4 +7,75 @@
     android:layout_height="match_parent"
     tools:context=".ExtratoActivity">
 
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="32dp"
+        android:text="Saldo"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textSaldo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="236dp"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/reciclerViewTransacao"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <RadioButton
+            android:id="@+id/rdBtnTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total" />
+
+        <RadioButton
+            android:id="@+id/rdBttnCredito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crédito" />
+
+        <RadioButton
+            android:id="@+id/rdBttnDebito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Débito" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/buttonVolta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="26dp"
+        android:layout_marginEnd="3dp"
+        android:onClick="voltar"
+        android:text="Voltar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/reciclerViewTransacao"
+        android:layout_width="409dp"
+        android:layout_height="579dp"
+        android:layout_marginTop="151dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/recycler_view_item" />
 </androidx.constraintlayout.widget.ConstraintLayout>
