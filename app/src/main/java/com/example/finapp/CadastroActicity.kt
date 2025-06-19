@@ -11,10 +11,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class CadastroActicity : AppCompatActivity() {
+    val filename = "transacoes.txt"
+
     lateinit var editValor: EditText
     lateinit var editComment: EditText
     lateinit var radioGroup: RadioGroup
-    lateinit var selectedText: String
+    var selectedText: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,11 +33,20 @@ class CadastroActicity : AppCompatActivity() {
 
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
-            selectedText = radioButton.text.toString()
+            selectedText = if (radioButton.text.toString() == "Crédito") {
+                1
+            } else
+                0
         }
     }
 
     fun onCadastrar(view: View) {
+        val valor = editValor.text.toString()
+        val descricao = editComment.text.toString()
+        val dado = Transacao(selectedText, valor.toDouble(), descricao)
+        val fileOutputStream = openFileOutput(filename, MODE_PRIVATE)
+        fileOutputStream.write(dado.toString().toByteArray())
+        fileOutputStream.close()
         finish()
     }
 }
