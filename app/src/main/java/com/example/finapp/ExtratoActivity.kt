@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -16,7 +17,8 @@ class ExtratoActivity : AppCompatActivity() {
 
     lateinit var radioGroup: RadioGroup
     lateinit var recyclerView: RecyclerView
-    lateinit var transacoes = mutableListOf<Transacao>()
+    var transacoes = mutableListOf<Transacao>()
+    lateinit var saldo: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,31 +30,52 @@ class ExtratoActivity : AppCompatActivity() {
             insets
         }
         recyclerView = findViewById(R.id.reciclerViewTransacao)
+        saldo = findViewById(R.id.textSaldo)
+        saldo.text = "R$ 0,00"
 
         val file = File(filename)
         radioGroup = findViewById(R.id.radioGroup2)
+        radioGroup.check(R.id.rdBtnTotal)
+        if (!file.exists()) {
+            recyclerView.adapter = TransacaoAdapter(transacoes)
+            return
+        }
+
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
             val selectedText = radioButton.text.toString()
-            if (selectedText == "Total") {
-                transacoes.clear()
-                file.bufferedReader().useLines { transacoes.add(it.toString().toTransacao()) }
+            transacoes.clear()
+
+            if (!file.exists()) {
                 recyclerView.adapter = TransacaoAdapter(transacoes)
-            } else if (selectedText == "Crédito") {
-                transacoes.clear()
-                file.bufferedReader().useLines { if (it.toString().contains("1"){
-                    transacoes.add(it.toString().toTransacao())
-                    }
-                }
-                recyclerView.adapter = TransacaoAdapter(transacoes)
-            } else {
-                transacoes.clear()
-                file.bufferedReader().useLines { if (it.toString().contains("0"){
-                    transacoes.add(it.toString().toTransacao())
-                    }
-                }
-                recyclerView.adapter = TransacaoAdapter(transacoes)
+                return@setOnCheckedChangeListener
             }
+
+            try {
+                file.bufferedReader().useLines { lines ->
+                    lines.forEach { line ->
+                        when (selectedText) {
+                            "Total" -> {
+                                transacoes.add(Transacao.fromString(line) ?: return@forEach)
+                            }
+                            "Crédito" -> {
+                                if (line.contains("Credito")) {
+                                    transacoes.add(Transacao.fromString(line) ?: return@forEach)
+                                }
+                            }
+                            else -> {
+                                if (line.contains("Debito")) {
+                                    transacoes.add(Transacao.fromString(line) ?: return@forEach)
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e: java.io.IOException) {
+                e.printStackTrace() // Log the error
+            }
+
+            recyclerView.adapter = TransacaoAdapter(transacoes)
         }
 
         val fileInputStream = openFileInput(filename)

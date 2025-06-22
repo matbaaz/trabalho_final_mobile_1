@@ -18,7 +18,10 @@ class TransacaoAdapter(
         val transacaoDescricao = itemView.findViewById<TextView>(R.id.textViewDescricao)
 
         fun bind(transacao: Transacao){
-            transacaoImage.setImageResource(transacao.tipo)
+            when (transacao.tipo == "Credito") {
+                true -> transacaoImage.setImageResource(R.drawable.credito)
+                false -> transacaoImage.setImageResource(R.drawable.debito)
+            }
             transacaoValor.text = transacao.valor.toString()
             transacaoDescricao.text = transacao.descricao
         }

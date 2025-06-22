@@ -16,7 +16,7 @@ class CadastroActicity : AppCompatActivity() {
     lateinit var editValor: EditText
     lateinit var editComment: EditText
     lateinit var radioGroup: RadioGroup
-    var selectedText: Int = -1
+    var selectedText: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,13 +30,14 @@ class CadastroActicity : AppCompatActivity() {
         editValor = findViewById(R.id.editTextValot)
         editComment = findViewById(R.id.editTextDescricao)
         radioGroup = findViewById(R.id.radioGroup)
+        radioGroup.check(R.id.rdBtnCredito)
 
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
             selectedText = if (radioButton.text.toString() == "Crédito") {
-                1
+                "Credito"
             } else
-                0
+                "Debito"
         }
     }
 
