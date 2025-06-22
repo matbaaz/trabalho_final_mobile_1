@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -42,6 +43,10 @@ class CadastroActicity : AppCompatActivity() {
     }
 
     fun onCadastrar(view: View) {
+        if (editValor.text.toString() == "" || editComment.text.toString() == ""){
+            Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
+            return
+        }
         val valor = editValor.text.toString()
         val descricao = editComment.text.toString()
         val dado = Transacao(selectedText, valor.toDouble(), descricao)
