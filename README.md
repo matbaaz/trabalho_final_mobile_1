@@ -10,7 +10,7 @@ Universidade Federal do Paraná - UFPR
 
 Prof. Alessandro Brawerman
 
-#Trabalho Final 1 - FinApp
+# Trabalho Final 1 - FinApp
 Uma FinTech, startup da área de finanças, solicitou que fosse desenvolvido um aplicativo
 simples para Android, que auxiliasse o usuário em sua vida financeira. O aplicativo tem por
 objetivo permitir o cadastro de todos os gastos (débitos) e ganhos (créditos) financeiros do
