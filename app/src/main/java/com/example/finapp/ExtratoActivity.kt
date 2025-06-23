@@ -2,23 +2,27 @@ package com.example.finapp
 
 import android.os.Bundle
 import android.view.View
-import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.io.File
+import com.example.finapp.model.Transacao
+import com.example.finapp.model.TransacaoAdapter
+import com.example.finapp.model.TransacaoTipo
 
 class ExtratoActivity : AppCompatActivity() {
     val filename = "transacoes.txt"
 
     lateinit var radioGroup: RadioGroup
     lateinit var recyclerView: RecyclerView
-    var transacoes = mutableListOf<Transacao>()
     lateinit var saldo: TextView
+    lateinit var transacoes: List<Transacao>
+    var transacoesShow = mutableListOf<Transacao>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,59 +37,46 @@ class ExtratoActivity : AppCompatActivity() {
         saldo = findViewById(R.id.textSaldo)
         saldo.text = "R$ 0,00"
 
-        val file = File(filename)
         radioGroup = findViewById(R.id.radioGroup2)
         radioGroup.check(R.id.rdBtnTotal)
-        if (!file.exists()) {
-            recyclerView.adapter = TransacaoAdapter(transacoes)
-            return
+
+
+        transacoes = openFileInput(filename).bufferedReader().useLines { lines ->
+            lines.mapNotNull {
+                Transacao.fromString(it)
+            }.toList()
         }
 
-        radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            val radioButton: RadioButton = findViewById(checkedId)
-            val selectedText = radioButton.text.toString()
-            transacoes.clear()
-
-            if (!file.exists()) {
-                recyclerView.adapter = TransacaoAdapter(transacoes)
-                return@setOnCheckedChangeListener
-            }
-
-            try {
-                file.bufferedReader().useLines { lines ->
-                    lines.forEach { line ->
-                        when (selectedText) {
-                            "Total" -> {
-                                transacoes.add(Transacao.fromString(line) ?: return@forEach)
-                            }
-                            "Crédito" -> {
-                                if (line.contains("Credito")) {
-                                    transacoes.add(Transacao.fromString(line) ?: return@forEach)
-                                }
-                            }
-                            else -> {
-                                if (line.contains("Debito")) {
-                                    transacoes.add(Transacao.fromString(line) ?: return@forEach)
-                                }
-                            }
-                        }
-                    }
-                }
-            } catch (e: java.io.IOException) {
-                e.printStackTrace() // Log the error
-            }
-
-            recyclerView.adapter = TransacaoAdapter(transacoes)
+        if (transacoes.isNotEmpty()){
+            val saldoDb = transacoes.sumOf { it.valor }
+            saldo.text = String.format("R$ %.2f", saldoDb)
         }
 
-        val fileInputStream = openFileInput(filename)
-        val text = fileInputStream.bufferedReader().use { it.readText() }
-        fileInputStream.close()
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            updateExtrato(checkedId)
+        }
 
+        updateExtrato(0)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.addItemDecoration(DividerItemDecoration(this,RecyclerView.VERTICAL))
+
+    }
+
+    private fun updateExtrato(filter: Int){
+        transacoesShow.clear()
+        transacoesShow = when(filter){
+            R.id.rdBttnDebito ->
+                transacoes.filter { it.tipo == TransacaoTipo.DEBITO }.toMutableList()
+            R.id.rdBttnCredito ->
+                transacoes.filter { it.tipo == TransacaoTipo.CREDITO }.toMutableList()
+            else ->
+                transacoes.toMutableList()
+        }
+        recyclerView.adapter = TransacaoAdapter(transacoesShow)
     }
 
     fun voltar(view: View) {
         finish()
     }
-
 }

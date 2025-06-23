@@ -10,6 +10,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.finapp.model.Transacao
+import com.example.finapp.model.TransacaoTipo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class CadastroActicity : AppCompatActivity() {
     val filename = "transacoes.txt"
@@ -17,7 +23,7 @@ class CadastroActicity : AppCompatActivity() {
     lateinit var editValor: EditText
     lateinit var editComment: EditText
     lateinit var radioGroup: RadioGroup
-    var selectedText: String = ""
+    var operationType: TransacaoTipo = TransacaoTipo.CREDITO
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,11 +41,15 @@ class CadastroActicity : AppCompatActivity() {
 
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val radioButton: RadioButton = findViewById(checkedId)
-            selectedText = if (radioButton.text.toString() == "Crédito") {
-                "Credito"
+            operationType = if (radioButton.text.toString() == "Crédito") {
+                TransacaoTipo.CREDITO
             } else
-                "Debito"
+                TransacaoTipo.DEBITO
         }
+    }
+
+    fun onVoltar(view: View){
+        this.finish()
     }
 
     fun onCadastrar(view: View) {
@@ -47,12 +57,20 @@ class CadastroActicity : AppCompatActivity() {
             Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
             return
         }
-        val valor = editValor.text.toString()
+        var valor = editValor.text.toString().toDouble()
+        if (operationType == TransacaoTipo.DEBITO){
+            valor *= -1
+        }
         val descricao = editComment.text.toString()
-        val dado = Transacao(selectedText, valor.toDouble(), descricao)
-        val fileOutputStream = openFileOutput(filename, MODE_PRIVATE)
-        fileOutputStream.write(dado.toString().toByteArray())
-        fileOutputStream.close()
-        finish()
+        val dado = Transacao(operationType, valor, descricao)
+        openFileOutput(filename, MODE_APPEND).use {
+            it.write("$dado\n".toByteArray())
+        }
+
+        Toast.makeText(this, "Cadastro Realizado com sucesso", Toast.LENGTH_LONG).show()
+        lifecycleScope.launch(Dispatchers.Main) {
+            delay(Toast.LENGTH_LONG * 1000L)
+            finish()
+        }
     }
 }
